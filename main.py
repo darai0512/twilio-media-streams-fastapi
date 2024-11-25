@@ -68,9 +68,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 chunk_num += 1
                 timestamp = int(media.get('timestamp', '0'))
                 payload = media.get('payload', '')
+                # todo queueなどがbetter cf. https://github.com/twilio/media-streams/blob/master/python/realtime-transcriptions/SpeechClientBridge.py#L36-L56
                 payloads.append(base64.b64decode(payload))
 
-                if not await is_threshold(payloads, payload, timestamp, last_ts):
+                if not await is_threshold(payloads, timestamp, last_ts, payload):
                     continue
 
                 res = await something(payloads)
@@ -112,9 +113,11 @@ CHUNK_COUNT_THRESHOLD = 50
 SILENT_STR = '/'
 SILENT_THRESHOLD = 100
 
-async def is_threshold(payloads: list[bytes], last_payload: str, timestamp: int, last_ts: int) -> bool:
+# todo 必要に応じて修正. 最後の引数は横着なので不要
+async def is_threshold(payloads: list[bytes], timestamp: int, last_ts: int, last_payload: str) -> bool:
     return len(payloads) > CHUNK_COUNT_THRESHOLD or last_payload.count(SILENT_STR) > SILENT_THRESHOLD
 
+# todo 必要に応じて修正. このデモはやまびこ
 async def something(payloads: list[bytes]) -> bytes:
     # audio: audio/x-mulaw with a sample rate of 8000 & chunnel=1
     audio = b"".join(payloads)
