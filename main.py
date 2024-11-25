@@ -4,8 +4,6 @@ import json
 import base64
 import os
 
-
-HTTP_SERVER_PORT = 8080
 app = FastAPI()
 
 """
@@ -19,20 +17,16 @@ twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
     <Stream url="wss://{os.getenv('DOMAIN')}/" statusCallback="https://{os.getenv('DOMAIN')}/status"></Stream>
   </Connect>
 </Response>"""
-print(twiml)
-
-def log(msg, *args):
-    print(msg, *args)
 
 @app.post("/twiml", response_class=HTMLResponse)
 async def twiml_endpoint(request: Request):
-    log(f"POST /twiml by {request.headers} & Body={await request.body()}")
+    print(f"POST /twiml by {request.headers} & Body={await request.body()}")
     return twiml
 
 @app.post("/status")
 async def status_endpoint(request: Request):
     # https://www.twilio.com/docs/voice/twiml/stream#statuscallback
-    log(f"POST /status by {request.headers} & Body={await request.body()}")
+    print(f"POST /status by {request.headers} & Body={await request.body()}")
     return {}
 
 @app.websocket("/")
@@ -49,7 +43,7 @@ async def websocket_endpoint(websocket: WebSocket):
             chunk = await websocket.receive_text()
             try:
                 data = json.loads(chunk)
-                log(chunk)
+                print(chunk)
             except:
                 break
             if data['event'] == 'connected':
@@ -59,11 +53,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 continue
             elif data['event'] == 'media':
                 if stream_sid is None or stream_sid != data.get('streamSid', None):
-                    log("Invalid chunk order")
+                    print("Invalid chunk order")
                     continue
                 media = data.get('media', None)
                 if media is None or str(chunk_num) != media.get('chunk', None):
-                    log("Invalid chunk received")
+                    print("Invalid chunk received")
                     continue
                 chunk_num += 1
                 timestamp = int(media.get('timestamp', '0'))
@@ -102,12 +96,12 @@ async def websocket_endpoint(websocket: WebSocket):
             elif data['event'] == 'stop':
                 break
             else:
-                log("Unknown event received: ", chunk)
+                print("Unknown event received: ", chunk)
                 continue
     except WebSocketDisconnect:
-        log("Connection closed")
+        print("Connection closed")
     except Exception as e:
-        log(e)
+        print(e)
 
 CHUNK_COUNT_THRESHOLD = 50
 SILENT_STR = '/'
