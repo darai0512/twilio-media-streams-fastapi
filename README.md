@@ -2,7 +2,7 @@
 
 [Official python demo (unidirectional)](https://github.com/twilio/media-streams) is too old.
 
-This is fastapi & bidirectional version.
+This is fastapi & bidirectional demo that connects with 2 phones.
 
 ref. official docs: https://www.twilio.com/docs/voice/media-streams
 
@@ -30,6 +30,7 @@ export AUTH_TOKEN=
 export TO_NUMBER=+YOUR_VERIFIED_PHONE
 export FROM_NUMBER=+TWILIO_NUMBER
 export DOMAIN=xxx.ngrok-free.app
+export OPERATORS=+8170XXXXYYYY,+8170YYYYZZZZ
 # US
 export API_KEY_SID=
 export API_KEY_SECRET=
