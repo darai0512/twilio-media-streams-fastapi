@@ -6,6 +6,7 @@ import json, base64, os, logging
 from twilio.rest import Client
 from twilio.request_validator import RequestValidator
 import asyncio
+import numpy as np
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s : %(message)s')
@@ -163,5 +164,12 @@ async def is_threshold(payloads: list[bytes], timestamp: int, last_ts: int, last
 # todo 必要に応じて修正. 無加工で相手に送信
 async def something(payloads: list[bytes]) -> bytes:
     # audio: audio/x-mulaw with a sample rate of 8000 & chunnel=1
-    audio = b"".join(payloads)
+    audio = byte_to_nparray(b"".join(payloads))
     return audio
+
+# todo 逆変換も
+def byte_to_nparray(mu_law_bytes: bytes) -> np.array:
+    import audioop
+    pcm_bytes = audioop.ulaw2lin(mu_law_bytes, 2)
+    return np.frombuffer(pcm_bytes, np.int16) # pcm
+    # return np.frombuffer(mu_law_bytes, np.uint8)
